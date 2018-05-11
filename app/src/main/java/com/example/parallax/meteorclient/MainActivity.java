@@ -64,16 +64,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         setContentView(R.layout.activity_main);
         rootView = getWindow().getDecorView().getRootView();
 
-        //test();
-
         list = (ListView) findViewById(R.id.list);
 
-        //listTasks.add(new Task("testniewitem"));
 
-        adapter = new Adapter(this, listTasks);
-        list.setAdapter(adapter);
-
-        //adapter.add(new Task("testItem"));
 
         // create a new instance
         mMeteor = new Meteor(this, "https://cuscopay.com/websocket", new InMemoryDatabase());
@@ -95,11 +88,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         // establish the connection
         mMeteor.connect();
 
-
-
+        adapter = new Adapter(this, listTasks, mMeteor);
+        list.setAdapter(adapter);
     }
-
-
 
 
     @Override

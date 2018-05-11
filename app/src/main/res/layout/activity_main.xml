@@ -7,6 +7,15 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <EditText
+        android:id="@+id/add_task"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Add a task .."
+        android:ems="10"
+        android:inputType="textPersonName"
+        tools:text="Type to add a task" />
+
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"

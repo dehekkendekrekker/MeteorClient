@@ -14,16 +14,20 @@ import com.example.parallax.meteorclient.factories.Task;
 import java.util.ArrayList;
 import java.util.List;
 
+import im.delight.android.ddp.Meteor;
+
 public class Adapter extends ArrayAdapter<Task> {
 
     private final LayoutInflater inflater;
     private final List<Task> tasks;
+    private Meteor meteor;
 
 
-    public Adapter(@NonNull Context context, ArrayList<Task> tasks) {
+    public Adapter(@NonNull Context context, ArrayList<Task> tasks, Meteor meteor) {
         super(context, 0, tasks);
         this.inflater = LayoutInflater.from(context);
         this.tasks = tasks;
+        this.meteor = meteor;
     }
 
     @NonNull
@@ -38,6 +42,7 @@ public class Adapter extends ArrayAdapter<Task> {
             final ViewHolder viewHolder = new ViewHolder();
             viewHolder.tvDisplayText = (TextView) convertView.findViewById(R.id.tvDisplayText);
             viewHolder.cbCompleted   = convertView.findViewById(R.id.cb_task_completed);
+            viewHolder.bDelete       = convertView.findViewById(R.id.deleteItem);
 
             // We set the view holder as tag of the convertView so we can access the view holder later on.
             convertView.setTag(viewHolder);
@@ -49,6 +54,14 @@ public class Adapter extends ArrayAdapter<Task> {
         // Bind the values to the views
         viewHolder.tvDisplayText.setText(task.text);
         viewHolder.cbCompleted.setChecked(task.checked);
+        viewHolder.bDelete.setTag(task);
+        viewHolder.bDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task task = (Task) v.getTag();
+                meteor.call("tasks.remove", new Object[] {task.id});
+            }
+        });
 
         return convertView;
     }
