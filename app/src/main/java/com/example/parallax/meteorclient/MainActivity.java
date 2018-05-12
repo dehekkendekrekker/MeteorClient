@@ -72,16 +72,14 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         mMeteor = application.getMeteor();
 
 
-        // establish the connection
-        if (!mMeteor.isConnected()) {
-            mMeteor.addCallback(this);
-            mMeteor.connect();
-        }
-
         adapter = new Adapter(this, listTasks, mMeteor);
         list.setAdapter(adapter);
 
         findViewById(R.id.list).requestFocus();
+    }
+
+    public void connect(MenuItem menuItem) {
+        mMeteor.connect();
     }
 
     // Menu icons are inflated just as they were with actionbar
@@ -90,6 +88,13 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.actionbar, menu);
         this.menu = menu;
+
+        // establish the connection
+        if (!mMeteor.isConnected()) {
+            mMeteor.addCallback(this);
+            mMeteor.connect();
+        }
+
         return true;
     }
 
@@ -159,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     @Override
     public void onConnect(boolean signedInAutomatically) {
+        menu.findItem(R.id.action_connect).setEnabled(false).setVisible(false);
+        menu.findItem(R.id.action_sign_in).setEnabled(true).setVisible(true);
 
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Connected ...", Snackbar.LENGTH_SHORT);
         snackbar.show();
@@ -172,12 +179,17 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
     @Override
     public void onDisconnect() {
         adapter.clear();
+        menu.findItem(R.id.action_connect).setEnabled(true).setVisible(true);
+        menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Disconnected ...", Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
     @Override
     public void onException(Exception e) {
+        adapter.clear();
+        menu.findItem(R.id.action_connect).setEnabled(true).setVisible(true);
+        menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Could not connect to server, check connectivity", Snackbar.LENGTH_LONG);
         snackbar.show();
     }
@@ -217,15 +229,10 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     }
 
-    @Override
-    public void onDestroy() {
-        mMeteor.disconnect();
-        mMeteor.removeCallback(this);
-        // or
-        // mMeteor.removeCallbacks();
-
-        // ...
-
-        super.onDestroy();
-    }
+//    @Override
+//    public void onDestroy() {
+//
+//
+//        super.onDestroy();
+//    }
 }

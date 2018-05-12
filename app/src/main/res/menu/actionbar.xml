@@ -17,5 +17,11 @@
         android:title="Sign in"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_connect"
+        android:onClick="connect"
+        android:title="Connect"
+        android:visible="false"/>
+
 
 </menu>
