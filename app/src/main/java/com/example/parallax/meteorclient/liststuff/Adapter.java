@@ -56,12 +56,16 @@ public class Adapter extends ArrayAdapter<Task> {
         final ViewHolder viewHolder = (ViewHolder) convertView.getTag();
 
         // Bind the values to the views
-        viewHolder.tvDisplayText.setText(task.text);
+        handleDisplayText(task, viewHolder);
         handleCheckbox(task, viewHolder);
         handleDeleteButton(task, viewHolder);
         handlePubPrivButton(task, viewHolder);
 
         return convertView;
+    }
+
+    private void handleDisplayText(Task task, ViewHolder viewHolder) {
+        viewHolder.tvDisplayText.setText(task.text);
     }
 
     private void handleCheckbox(Task task, ViewHolder viewHolder) {
@@ -111,6 +115,15 @@ public class Adapter extends ArrayAdapter<Task> {
         } else {
             viewHolder.bPubPriv.setImageResource(android.R.drawable.ic_partial_secure);
         }
+
+        viewHolder.bPubPriv.setTag(task);
+        viewHolder.bPubPriv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task task = (Task) v.getTag();
+                meteor.call("tasks.setPrivate", new Object[] {task.id, !task.priv});
+            }
+        });
     }
 
     /**

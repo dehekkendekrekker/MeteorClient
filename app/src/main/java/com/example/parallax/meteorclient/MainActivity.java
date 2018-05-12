@@ -5,10 +5,16 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.parallax.meteorclient.factories.Task;
 import com.example.parallax.meteorclient.factories.TaskFactory;
@@ -48,6 +54,17 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        final EditText ed = findViewById(R.id.add_task);
+        ed.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                    mMeteor.call("tasks.insert", new Object[] {ed.getText().toString()});
+                    ed.setText("");
+                }
+                return false;
+            }
+        });
+
         list = (ListView) findViewById(R.id.list);
 
         // create a new instance
@@ -55,11 +72,11 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         mMeteor = application.getMeteor();
 
 
-        // register the callback that will handle events and receive messages
-        mMeteor.addCallback(this);
-
         // establish the connection
-        mMeteor.connect();
+        if (!mMeteor.isConnected()) {
+            mMeteor.addCallback(this);
+            mMeteor.connect();
+        }
 
         adapter = new Adapter(this, listTasks, mMeteor);
         list.setAdapter(adapter);
@@ -100,6 +117,10 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Signed out", Snackbar.LENGTH_SHORT);
         snackbar.show();
+    }
+
+    public void addTask(View view) {
+
     }
 
     /**
