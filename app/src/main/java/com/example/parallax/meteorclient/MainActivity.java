@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     private ListView list;
 
-    private View rootView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,25 +67,12 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        rootView = getWindow().getDecorView().getRootView();
-
         list = (ListView) findViewById(R.id.list);
 
-
-
         // create a new instance
-        mMeteor = new Meteor(this, "https://cuscopay.com/websocket", new InMemoryDatabase());
+        MainApplication application = (MainApplication) getApplication();
+        mMeteor = application.getMeteor();
 
-        CertificateFactory cf;
-
-        try {
-            cf = CertificateFactory.getInstance("X.509");
-            InputStream caInput = new BufferedInputStream(getResources().openRawResource(R.raw.ca));
-            Certificate ca = cf.generateCertificate(caInput);
-            mMeteor.trustCaCert(ca);
-        } catch (CertificateException certException) {
-            System.out.print("DDP-SSL: " + certException.getMessage());
-        }
 
         // register the callback that will handle events and receive messages
         mMeteor.addCallback(this);
@@ -131,7 +116,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     @Override
     public void onDisconnect() {
-
+        adapter.clear();
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Disconnected ...", Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
@@ -142,21 +129,33 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     @Override
     public void onDataAdded(String collectionName, String documentID, String newValuesJson) {
+        if (!collectionName.equals("tasks")) {
+            return;
+        }
+
         Task task = TaskFactory.create(documentID, newValuesJson);
         adapter.add(task);
     }
 
     @Override
     public void onDataChanged(String collectionName, String documentID, String updatedValuesJson, String removedValuesJson) {
+        if (!collectionName.equals("tasks")) {
+            return;
+        }
+
         Task task = adapter.getItem(documentID);
 
-        task = TaskFactory.update(task, updatedValuesJson);
+        TaskFactory.update(task, updatedValuesJson);
         adapter.notifyDataSetChanged();
 
     }
 
     @Override
     public void onDataRemoved(String collectionName, String documentID) {
+        if (!collectionName.equals("tasks")) {
+            return;
+        }
+
         Task task = new Task();
         task.id = documentID;
         adapter.remove(task);

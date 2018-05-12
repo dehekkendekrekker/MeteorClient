@@ -21,9 +21,10 @@
         android:id="@+id/add_task"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Add a task .."
         android:ems="10"
+        android:hint="Add a task .."
         android:inputType="textPersonName"
+        android:visibility="invisible"
         tools:text="Type to add a task" />
 
     <ListView
