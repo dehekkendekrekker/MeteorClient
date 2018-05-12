@@ -1,48 +1,24 @@
 package com.example.parallax.meteorclient;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.parallax.meteorclient.factories.Task;
 import com.example.parallax.meteorclient.factories.TaskFactory;
 import com.example.parallax.meteorclient.liststuff.Adapter;
-import com.google.gson.Gson;
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketAdapter;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFactory;
-import com.neovisionaries.ws.client.WebSocketFrame;
-import com.neovisionaries.ws.client.WebSocketState;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 import im.delight.android.ddp.Meteor;
 import im.delight.android.ddp.MeteorCallback;
-import im.delight.android.ddp.db.memory.InMemoryDatabase;
+import im.delight.android.ddp.ResultListener;
 
 //import im.delight.android.ddp.Meteor;
 //import im.delight.android.ddp.MeteorCallback;
@@ -50,6 +26,7 @@ import im.delight.android.ddp.db.memory.InMemoryDatabase;
 
 public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
+    public static final int LOGIN_REQUEST = 999;
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
     ArrayList<Task> listTasks =new ArrayList<Task>();
 
@@ -59,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
     private Meteor mMeteor;
 
     private ListView list;
+
+    private boolean loggedIn = false;
+
+    private  Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,17 +72,57 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.actionbar, menu);
+        this.menu = menu;
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == LOGIN_REQUEST) {
+            if (resultCode == LoginActivity.LOGGED_IN) { handleSignedIn(); }
+        }
+    }
+
+    void handleSignedIn() {
+        loggedIn = true;
+        menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
+        menu.findItem(R.id.action_sign_out).setEnabled(true).setVisible(true);
+        findViewById(R.id.add_task).setVisibility(EditText.VISIBLE);
+    }
+
+    void handleSignedOut() {
+        loggedIn = false;
+        menu.findItem(R.id.action_sign_in).setEnabled(true).setVisible(true);
+        menu.findItem(R.id.action_sign_out).setEnabled(false).setVisible(false);
+        findViewById(R.id.add_task).setVisibility(EditText.INVISIBLE);
+
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Signed out", Snackbar.LENGTH_SHORT);
+        snackbar.show();
     }
 
     /**
      *
      * @param menuItem
      */
-    public void startLoginActivity(MenuItem menuItem)
+    public void signIn(MenuItem menuItem)
     {
         Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, LOGIN_REQUEST);
+    }
+
+    public void signOut(MenuItem menuItem) {
+        mMeteor.logout(new ResultListener() {
+            @Override
+            public void onSuccess(String result) {
+                handleSignedOut();
+            }
+
+            @Override
+            public void onError(String error, String reason, String details) {
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Unable to sign out", Snackbar.LENGTH_SHORT);
+                snackbar.show();
+            }
+        });
     }
 
 
@@ -111,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Connected ...", Snackbar.LENGTH_SHORT);
         snackbar.show();
 
-        String subscriptionId = mMeteor.subscribe("tasks");
+        mMeteor.subscribe("tasks");
     }
 
     @Override

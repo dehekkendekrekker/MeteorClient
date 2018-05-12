@@ -9,10 +9,11 @@
         android:checkable="false"
         android:enabled="false"
         android:title="Sign out"
+        android:onClick="signOut"
         android:visible="false" />
     <item
         android:id="@+id/action_sign_in"
-        android:onClick="startLoginActivity"
+        android:onClick="signIn"
         android:title="Sign in"
         app:showAsAction="never" />
 
