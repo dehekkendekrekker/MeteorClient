@@ -66,22 +66,33 @@ public class Adapter extends ArrayAdapter<Task> {
             }
         });
 
-        MainActivity context = (MainActivity)getContext();
-        if (context.isLoggedIn()) {
-            String userId = context.getLoggedInUserId();
-            if (task.owner.equals(userId)) {
-                viewHolder.bPubPriv.setVisibility(AppCompatImageButton.VISIBLE);
-            } else {
-                viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
-            }
-        } else {
-            viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
-        }
-
-
-
+        handlePubPrivButton(task, viewHolder);
 
         return convertView;
+    }
+
+    private void handlePubPrivButton(Task task, ViewHolder viewHolder) {
+        String userId;
+
+        MainActivity context = (MainActivity)getContext();
+        if (!context.isLoggedIn()) {
+            viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
+            return;
+        }
+
+        userId = context.getLoggedInUserId();
+        if (!task.owner.equals(userId)) {
+            viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
+            return;
+        }
+
+        viewHolder.bPubPriv.setVisibility(AppCompatImageButton.VISIBLE);
+
+        if (task.priv) {
+            viewHolder.bPubPriv.setImageResource(android.R.drawable.ic_secure);
+        } else {
+            viewHolder.bPubPriv.setImageResource(android.R.drawable.ic_partial_secure);
+        }
     }
 
     /**

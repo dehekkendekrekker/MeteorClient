@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/cb_task_completed"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:srcCompat="@android:drawable/ic_partial_secure" />
 
 </RelativeLayout>

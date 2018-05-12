@@ -5,8 +5,7 @@ public class Task {
     public String text     = "";
     public boolean checked = false;
     public String owner;
-
-
+    public boolean priv = false;
 
     @Override
     public boolean equals(Object o) {
