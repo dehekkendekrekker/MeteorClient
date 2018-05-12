@@ -1,10 +1,14 @@
 package com.example.parallax.meteorclient;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -62,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
         rootView = getWindow().getDecorView().getRootView();
 
         list = (ListView) findViewById(R.id.list);
@@ -90,13 +97,33 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
         adapter = new Adapter(this, listTasks, mMeteor);
         list.setAdapter(adapter);
+
+        findViewById(R.id.list).requestFocus();
+    }
+
+    // Menu icons are inflated just as they were with actionbar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.actionbar, menu);
+        return true;
+    }
+
+    /**
+     *
+     * @param menuItem
+     */
+    public void startLoginActivity(MenuItem menuItem)
+    {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
 
     @Override
     public void onConnect(boolean signedInAutomatically) {
 
-        Snackbar snackbar = Snackbar.make(rootView, "Connected ...", Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Connected ...", Snackbar.LENGTH_SHORT);
         snackbar.show();
 
         String subscriptionId = mMeteor.subscribe("tasks");
@@ -109,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     @Override
     public void onException(Exception e) {
-        Snackbar snackbar = Snackbar.make(rootView, "Could not connect to server, check connectivity", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Could not connect to server, check connectivity", Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
