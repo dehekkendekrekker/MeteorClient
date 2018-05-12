@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.example.parallax.meteorclient.MainActivity;
@@ -56,7 +57,28 @@ public class Adapter extends ArrayAdapter<Task> {
 
         // Bind the values to the views
         viewHolder.tvDisplayText.setText(task.text);
+        handleCheckbox(task, viewHolder);
+        handleDeleteButton(task, viewHolder);
+        handlePubPrivButton(task, viewHolder);
+
+        return convertView;
+    }
+
+    private void handleCheckbox(Task task, ViewHolder viewHolder) {
         viewHolder.cbCompleted.setChecked(task.checked);
+        viewHolder.cbCompleted.setTag(task);
+        viewHolder.cbCompleted.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CheckBox cb = (CheckBox)v;
+                Task task = (Task) v.getTag();
+                boolean checked = cb.isChecked();
+                meteor.call("tasks.setChecked", new Object[] {task.id, checked});
+            }
+        });
+    }
+
+    private void handleDeleteButton(Task task, ViewHolder viewHolder) {
         viewHolder.bDelete.setTag(task);
         viewHolder.bDelete.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,10 +87,6 @@ public class Adapter extends ArrayAdapter<Task> {
                 meteor.call("tasks.remove", new Object[] {task.id});
             }
         });
-
-        handlePubPrivButton(task, viewHolder);
-
-        return convertView;
     }
 
     private void handlePubPrivButton(Task task, ViewHolder viewHolder) {
