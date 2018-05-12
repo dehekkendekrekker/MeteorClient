@@ -10,33 +10,38 @@
 
     <TextView
         android:id="@+id/tvDisplayText"
-        android:layout_width="231dp"
+        android:layout_width="238dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="64dp"
-        android:layout_marginStart="64dp" />
+        android:layout_marginLeft="81dp"
+        android:layout_marginStart="81dp" />
 
     <CheckBox
         android:id="@+id/cb_task_completed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp" />
+        android:layout_centerVertical="true" />
 
     <ImageButton
         android:id="@+id/deleteItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="20dp"
+        android:layout_height="27dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
+        android:layout_centerVertical="true"
         android:contentDescription="deleteTask"
         android:onClick="deleteItem"
         app:srcCompat="@android:drawable/ic_delete" />
+
+    <ImageButton
+        android:id="@+id/pubprivbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/cb_task_completed"
+        android:visibility="invisible"
+        app:srcCompat="@android:drawable/ic_partial_secure" />
 
 </RelativeLayout>

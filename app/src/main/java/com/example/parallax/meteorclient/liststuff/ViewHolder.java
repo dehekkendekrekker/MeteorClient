@@ -9,4 +9,5 @@ public class ViewHolder {
     public CheckBox cbCompleted;
     public TextView tvDisplayText;
     public AppCompatImageButton bDelete;
+    public AppCompatImageButton bPubPriv;
 }

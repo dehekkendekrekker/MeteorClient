@@ -4,6 +4,7 @@ public class Task {
     public String id       = "";
     public String text     = "";
     public boolean checked = false;
+    public String owner;
 
 
 

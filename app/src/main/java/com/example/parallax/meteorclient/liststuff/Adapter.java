@@ -2,12 +2,14 @@ package com.example.parallax.meteorclient.liststuff;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.example.parallax.meteorclient.MainActivity;
 import com.example.parallax.meteorclient.R;
 import com.example.parallax.meteorclient.factories.Task;
 
@@ -43,6 +45,7 @@ public class Adapter extends ArrayAdapter<Task> {
             viewHolder.tvDisplayText = (TextView) convertView.findViewById(R.id.tvDisplayText);
             viewHolder.cbCompleted   = convertView.findViewById(R.id.cb_task_completed);
             viewHolder.bDelete       = convertView.findViewById(R.id.deleteItem);
+            viewHolder.bPubPriv      = convertView.findViewById(R.id.pubprivbutton);
 
             // We set the view holder as tag of the convertView so we can access the view holder later on.
             convertView.setTag(viewHolder);
@@ -62,6 +65,21 @@ public class Adapter extends ArrayAdapter<Task> {
                 meteor.call("tasks.remove", new Object[] {task.id});
             }
         });
+
+        MainActivity context = (MainActivity)getContext();
+        if (context.isLoggedIn()) {
+            String userId = context.getLoggedInUserId();
+            if (task.owner.equals(userId)) {
+                viewHolder.bPubPriv.setVisibility(AppCompatImageButton.VISIBLE);
+            } else {
+                viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
+            }
+        } else {
+            viewHolder.bPubPriv.setVisibility(AppCompatImageButton.INVISIBLE);
+        }
+
+
+
 
         return convertView;
     }

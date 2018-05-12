@@ -3,11 +3,11 @@ package com.example.parallax.meteorclient;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -15,7 +15,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -68,6 +67,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
+    private AlertDialog dialog;
+
+    private Meteor meteor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +101,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        MainApplication app = (MainApplication) getApplication();
+        meteor = app.getMeteor();
     }
 
     private void populateAutoComplete() {
@@ -293,11 +299,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
     private void doLogin(final String username, final String password) {
-        MainApplication app = (MainApplication) getApplication();
-        Meteor meteor = app.getMeteor();
-
-        final Context context = this;
-
         meteor.loginWithUsername(username, password, new ResultListener() {
             @Override
             public void onSuccess(String result) {
@@ -321,23 +322,45 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     Snackbar snackbar = Snackbar.make(mLoginFormView, "Incorrect password", Snackbar.LENGTH_SHORT);
                     snackbar.show();
                 } else if (reason.equals("User not found")) {
-                    Intent intent = new Intent(context, ConfirmAccountCreationActivity.class);
-                    intent.putExtra("username", username);
-                    intent.putExtra("password", password);
-                    startActivityForResult(intent, REQUEST_ACCOUNT);
+                    showPopup(username, password);
                 }
             }
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ACCOUNT) {
-            if (resultCode == ConfirmAccountCreationActivity.ACCEPTED) {
-                setResult(LOGGED_IN);
-                finish();
+    private void showPopup(final String username, final String password)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(true);
+        builder.setTitle("Create account");
+        builder.setMessage("Account now found. Create a new account using this username and password?");
+        builder.setPositiveButton("Confirm",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        meteor.registerAndLogin(username, null, password, new ResultListener() {
+                            @Override
+                            public void onSuccess(String result) {
+                                setResult(LOGGED_IN);
+                                finish();
+                            }
+
+                            @Override
+                            public void onError(String error, String reason, String details) {
+
+                            }
+                        });
+
+                    }
+                });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
             }
-        }
+        });
+
+        dialog = builder.create();
+        dialog.show();
     }
 }
 

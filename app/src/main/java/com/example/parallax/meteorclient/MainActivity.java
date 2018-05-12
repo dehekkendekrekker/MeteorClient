@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
         menu.findItem(R.id.action_sign_out).setEnabled(true).setVisible(true);
         findViewById(R.id.add_task).setVisibility(EditText.VISIBLE);
+        adapter.notifyDataSetChanged();
     }
 
     void handleSignedOut() {
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         menu.findItem(R.id.action_sign_in).setEnabled(true).setVisible(true);
         menu.findItem(R.id.action_sign_out).setEnabled(false).setVisible(false);
         findViewById(R.id.add_task).setVisibility(EditText.INVISIBLE);
+        adapter.notifyDataSetChanged();
 
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Signed out", Snackbar.LENGTH_SHORT);
         snackbar.show();
@@ -125,6 +127,14 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         });
     }
 
+    public boolean isLoggedIn() {
+        return mMeteor.isLoggedIn();
+    }
+
+    public String getLoggedInUserId() {
+        return mMeteor.getUserId();
+    }
+
 
     @Override
     public void onConnect(boolean signedInAutomatically) {
@@ -133,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         snackbar.show();
 
         mMeteor.subscribe("tasks");
+
+        // See if we're logged in
+        if (isLoggedIn()) handleSignedIn();
     }
 
     @Override
