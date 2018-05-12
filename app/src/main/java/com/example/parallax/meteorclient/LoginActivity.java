@@ -3,6 +3,8 @@ package com.example.parallax.meteorclient;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -56,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     };
 
     public static final int LOGGED_IN = 1;
+    public static final int REQUEST_ACCOUNT = 998;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -152,7 +155,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String username = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -166,11 +169,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(username)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(username)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -184,7 +187,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            doLogin();
+            doLogin(username, password);
         }
     }
 
@@ -289,11 +292,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
 
-    private void doLogin() {
+    private void doLogin(final String username, final String password) {
         MainApplication app = (MainApplication) getApplication();
         Meteor meteor = app.getMeteor();
 
-        meteor.loginWithUsername("daniel", "daniel", new ResultListener() {
+        final Context context = this;
+
+        meteor.loginWithUsername(username, password, new ResultListener() {
             @Override
             public void onSuccess(String result) {
                 showProgress(false);
@@ -312,8 +317,27 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onError(String error, String reason, String details) {
                 showProgress(false);
 
+                if (reason.equals("Incorrect password")) {
+                    Snackbar snackbar = Snackbar.make(mLoginFormView, "Incorrect password", Snackbar.LENGTH_SHORT);
+                    snackbar.show();
+                } else if (reason.equals("User not found")) {
+                    Intent intent = new Intent(context, ConfirmAccountCreationActivity.class);
+                    intent.putExtra("username", username);
+                    intent.putExtra("password", password);
+                    startActivityForResult(intent, REQUEST_ACCOUNT);
+                }
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ACCOUNT) {
+            if (resultCode == ConfirmAccountCreationActivity.ACCEPTED) {
+                setResult(LOGGED_IN);
+                finish();
+            }
+        }
     }
 }
 
