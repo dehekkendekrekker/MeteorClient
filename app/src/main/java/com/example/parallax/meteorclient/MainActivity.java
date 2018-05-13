@@ -57,7 +57,9 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         final EditText ed = findViewById(R.id.add_task);
         ed.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) || (actionId == EditorInfo.IME_ACTION_DONE)) {
+                if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) ||
+                        (actionId == EditorInfo.IME_ACTION_DONE) ||
+                        (actionId == EditorInfo.IME_ACTION_NEXT)) {
                     mMeteor.call("tasks.insert", new Object[] {ed.getText().toString()});
                     ed.setText("");
                 }
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
         adapter = new Adapter(this, listTasks, mMeteor);
         list.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
         findViewById(R.id.list).requestFocus();
     }
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
         loggedIn = false;
         menu.findItem(R.id.action_sign_in).setEnabled(true).setVisible(true);
         menu.findItem(R.id.action_sign_out).setEnabled(false).setVisible(false);
-        findViewById(R.id.add_task).setVisibility(EditText.INVISIBLE);
+        findViewById(R.id.add_task).setVisibility(EditText.GONE);
         adapter.notifyDataSetChanged();
 
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Signed out", Snackbar.LENGTH_SHORT);
@@ -178,18 +181,26 @@ public class MainActivity extends AppCompatActivity implements MeteorCallback {
 
     @Override
     public void onDisconnect() {
-        adapter.clear();
-        menu.findItem(R.id.action_connect).setEnabled(true).setVisible(true);
-        menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
+        handleDisconnect();
+
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Disconnected ...", Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
-    @Override
-    public void onException(Exception e) {
+    private void handleDisconnect() {
         adapter.clear();
         menu.findItem(R.id.action_connect).setEnabled(true).setVisible(true);
         menu.findItem(R.id.action_sign_in).setEnabled(false).setVisible(false);
+        menu.findItem(R.id.action_sign_out).setEnabled(false).setVisible(false);
+        findViewById(R.id.add_task).setVisibility(EditText.GONE);
+    }
+
+    @Override
+    public void onException(Exception e) {
+        handleDisconnect();
+
+
+
         Snackbar snackbar = Snackbar.make(findViewById(R.id.my_toolbar), "Could not connect to server, check connectivity", Snackbar.LENGTH_LONG);
         snackbar.show();
     }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
+    android:screenOrientation="portrait"
     tools:context=".MainActivity">
 
     <android.support.v7.widget.Toolbar
@@ -24,7 +25,7 @@
         android:ems="10"
         android:hint="Add a task .."
         android:inputType="textPersonName"
-        android:visibility="invisible"
+        android:visibility="gone"
         tools:text="Type to add a task" />
 
     <ListView

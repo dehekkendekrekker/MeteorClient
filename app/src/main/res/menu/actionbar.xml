@@ -15,13 +15,15 @@
         android:id="@+id/action_sign_in"
         android:onClick="signIn"
         android:title="Sign in"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_connect"
+        android:enabled="true"
         android:onClick="connect"
         android:title="Connect"
-        android:visible="false"/>
+        android:visible="true" />
 
 
 </menu>
